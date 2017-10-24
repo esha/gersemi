@@ -10,22 +10,22 @@ Here is a quick example of how this module can be used in other modules. The [Ty
 
 Now assuming you have published this amazing module to _npm_ with the name `my-amazing-lib`, and installed it in the module in which you need it -
 
-- To use the `Greeter` class in a TypeScript file -
+- To use the `GenesisBase` class in a TypeScript file -
 
 ```ts
-import { Greeter } from "my-amazing-lib";
+import { GenesisBase } from "my-amazing-lib";
 
-const greeter = new Greeter("World!");
-greeter.greet();
+const base = new GenesisBase("World!");
+base.greet();
 ```
 
-- To use the `Greeter` class in a JavaScript file -
+- To use the `GenesisBase` class in a JavaScript file -
 
 ```js
-const Greeter = require('my-amazing-lib').Greeter;
+const GenesisBase = require('my-amazing-lib').GenesisBase;
 
-const greeter = new Greeter('World!');
-greeter.greet();
+const GenesisBase = new GenesisBase('World!');
+GenesisBase.greet();
 ```
 
 ## Setting travis and coveralls badges
