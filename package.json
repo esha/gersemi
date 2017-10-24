@@ -1,16 +1,18 @@
 {
   "name": "gersemi",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "gersemi",
   "license": "MIT",
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/esha/gersemi.git"
+  },
   "author": {
-    "name": "",
-    "email": "",
-    "url": ""
+    "name": "ESHA Research",
+    "email": "nathan@esharesearch.com"
   },
   "keywords": [
-    ""
+    "genesis", "api", "posterior"
   ],
   "files": [
     "lib"
@@ -30,7 +32,8 @@
     "watch:test": "jest --watch"
   },
   "dependencies": {
-    "posterior": "^0.19.2"
+    "posterior": "^0.19.2",
+    "store2": "^2.5.7"
   },
   "devDependencies": {
     "@types/jest": "^20.0.5",
