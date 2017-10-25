@@ -1,6 +1,6 @@
 import Posterior from 'posterior';
 import store from 'store2';
-import xml2js from 'xml2js';
+import * as xml2js from 'xml2js';
 
 const defaultConfig = { soap: true, mock: false };
 const config = store.get('demo.config', defaultConfig);
