@@ -32,10 +32,6 @@ service().then((res) => {
 });
 ```
 
-## Setting travis and coveralls badges
-1. Sign in to [travis](https://travis-ci.org/) and activate the build for your project.
-2. Sign in to [coveralls](https://coveralls.io/) and activate the build for your project.
-
 ### Release History
 * 2017-10 [v0.0.1][] (development)
 
