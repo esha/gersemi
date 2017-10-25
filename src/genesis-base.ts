@@ -1,13 +1,30 @@
 import Posterior from 'posterior';
+import store from 'store2';
+import xml2js from 'xml2js';
 
-export class GenesisBase {
-  private greeting: string;
+const defaultConfig = { soap: true, mock: false };
+const config = store.get('demo.config', defaultConfig);
+const GenesisService = Posterior({
+  url: config.mock
+    ? 'http://localhost:8000'
+    : 'http://eshademo.cloudapp.net/soap/FoodQueryService.svc',
+  json: !config.soap,
+  headers: config.soap
+    ? {
+        'Content-Type': 'text/xml',
+      }
+    : {},
+});
 
-  constructor(message: string) {
-    this.greeting = message;
-  }
-
-  public greet(): string {
-    return `Bonjour, ${this.greeting}!`;
-  }
+// Support console REPL w/flag
+if (window && document.body.hasAttribute('debug')) {
+  (window as any).GenesisService = GenesisService;
+  (window as any).store = store;
+  (window as any).xml2js = xml2js;
+  // debug mode should immediately try service out
+  GenesisService().then(res => {
+    console.log(res);
+  });
 }
+
+export default GenesisService;
