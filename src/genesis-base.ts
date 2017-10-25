@@ -21,10 +21,6 @@ if (window && document.body.hasAttribute('debug')) {
   (window as any).GenesisService = GenesisService;
   (window as any).store = store;
   (window as any).xml2js = xml2js;
-  // debug mode should immediately try service out
-  GenesisService().then(res => {
-    console.log(res);
-  });
 }
 
 export default GenesisService;
