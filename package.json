@@ -1,5 +1,6 @@
 {
   "name": "gersemi",
+  "title": "TypeScript Client for Genesis API",
   "version": "0.0.1",
   "description": "gersemi",
   "license": "MIT",
@@ -9,12 +10,15 @@
   },
   "author": {
     "name": "ESHA Research",
-    "email": "nathan@esharesearch.com"
+    "email": "nathan@esha.com",
+    "url": "http://www.esha.com"
   },
   "keywords": [
     "genesis",
     "api",
-    "posterior"
+    "posterior",
+    "ESHA",
+    "client"
   ],
   "files": [
     "lib"
