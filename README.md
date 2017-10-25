@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/{{github-user-name}}/{{github-app-name}}.svg?branch=master)](https://travis-ci.org/{{github-user-name}}/{{github-app-name}}.svg?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/{{github-user-name}}/{{github-app-name}}/badge.svg?branch=master)](https://coveralls.io/github/{{github-user-name}}/{{github-app-name}}?branch=master)
+[![Build Status](https://travis-ci.org/esha/gersemi.svg?branch=master)](https://travis-ci.org/esha/gersemi.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/esha/gersemi/badge.svg?branch=master)](https://coveralls.io/github/esha/gersemi?branch=master)
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
 # Using this module in other modules
@@ -8,27 +8,35 @@ Here is a quick example of how this module can be used in other modules. The [Ty
 
 > If you are planning to have code in multiple files (which is quite natural for a NodeJS module) that users can import, make sure you update `src/index.ts` file appropriately.
 
-Now assuming you have published this amazing module to _npm_ with the name `my-amazing-lib`, and installed it in the module in which you need it -
+Once published to _npm_ with the name `gersemi`, this module can be installed in the module in which you need it -
 
 - To use the `GenesisBase` class in a TypeScript file -
 
 ```ts
-import { GenesisBase } from "my-amazing-lib";
+import { GenesisBase } from "gersemi";
 
-const base = new GenesisBase("World!");
-base.greet();
+const service = GenesisBase.extend({ url: '/some-url' });
+service().then((res) => {
+    console.log('Success!', res);
+});
 ```
 
 - To use the `GenesisBase` class in a JavaScript file -
 
 ```js
-const GenesisBase = require('my-amazing-lib').GenesisBase;
+const GenesisBase = require('gersemi').GenesisBase;
 
-const GenesisBase = new GenesisBase('World!');
-GenesisBase.greet();
+const service = GenesisBase.extend({ url: '/some-url' });
+service().then((res) => {
+    console.log('Success!', res);
+});
 ```
 
 ## Setting travis and coveralls badges
 1. Sign in to [travis](https://travis-ci.org/) and activate the build for your project.
 2. Sign in to [coveralls](https://coveralls.io/) and activate the build for your project.
-3. Replace {{github-user-name}}/{{github-app-name}} with your repo details like: "ospatil/generator-node-typescript".
+
+### Release History
+* 2017-10 [v0.0.1][] (development)
+
+[v0.0.1]: https://github.com/esha/posterior/tree/0.0.1

@@ -1,5 +1,3 @@
-export declare class GenesisBase {
-    private greeting;
-    constructor(message: string);
-    greet(): string;
-}
+import Posterior from 'posterior';
+declare const GenesisService: Posterior.Requester;
+export default GenesisService;
