@@ -4,7 +4,7 @@ import * as xml2js from 'xml2js';
 
 const defaultConfig = { soap: true, mock: false };
 const config = store.get('demo.config', defaultConfig);
-const GenesisService = Posterior({
+export const GenesisService = Posterior({
   url: config.mock
     ? 'http://localhost:8000'
     : 'http://eshademo.cloudapp.net/soap/FoodQueryService.svc',
