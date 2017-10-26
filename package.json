@@ -29,7 +29,7 @@
     "clean": "rimraf lib && rimraf coverage",
     "format": "prettier --write \"{src,__tests__}/**/*.ts\" --single-quote --trailing-comma es5",
     "lint": "tslint --force --format verbose \"src/**/*.ts\"",
-    "prepublish": "npm run build",
+    "prepublish": "npm run build && git commit -m \"$npm_package_version\" README.md package.json lib && git tag $npm_package_version && git push && git push --tags",
     "prebuild": "npm run clean && npm run format && npm run lint && echo Using TypeScript && tsc --version",
     "build": "tsc --pretty",
     "test": "jest",
