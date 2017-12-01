@@ -39,7 +39,7 @@
     "release": "bump -y package.json && npm publish"
   },
   "dependencies": {
-    "posterior": "^0.21.0",
+    "posterior": "^0.21.1",
     "store2": "^2.5.9",
     "xml2js": "^0.4.19"
   },
