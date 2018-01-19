@@ -1,6 +1,7 @@
-import { GenesisBase } from '../src/genesis-base';
+import { GenesisClient } from '../src/genesis-base';
 
-test('Should greet with message', () => {
-  const greeter = new GenesisBase('friend');
-  expect(greeter.greet()).toBe('Bonjour, friend!');
+test('create a client', () => {
+  const client = new GenesisClient();
+  expect(client).not.toBeNull();
 });
+
