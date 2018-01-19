@@ -1,38 +1,41 @@
-import Posterior from 'posterior';
-import store from 'store2';
+import * as Posterior from 'posterior';
+import * as store from 'store2';
 import WSDL from './WSDL';
 
-const defaultConfig = {
-  rest: false,
-  url: 'http://eshademo.cloudapp.net',
+export type GenesisConfig = Posterior.InputConfig & {
+  rest: boolean
 };
-const config = store.get('demo.config', defaultConfig);
 export class GenesisClient {
   public Base: Posterior.Requester;
   public Service: Posterior.Requester;
-  public config: Posterior.InputConfig;
+  public cfg: GenesisConfig;
 
-  constructor(baseConfig: { [key: string]: any }) {
-    this.config = store.get('demo.config', defaultConfig);
-    if (baseConfig) {
-      for (const key in baseConfig) {
+  constructor(config?: { [key: string]: any }) {
+    // start with any stored defaults
+    this.cfg = store.get('Genesis.config', {});
+
+    // copy over any manual config
+    if (config) {
+      for (const key in config) {
         // tslinst:disable-line
-        (this.config as any)[key] = baseConfig[key];
+        (this.cfg as any)[key] = config[key];
       }
     }
-    this.configure('method', config.rest ? 'GET' : 'POST', false);
-    this.configure('json', config.rest, false);
+
+    // fill in some smart defaults (no overridding!!)
+    this.configure('url', 'http://eshademo.cloudapp.net', false);
+    this.configure('method', this.cfg.rest ? 'GET' : 'POST', false);
+    this.configure('json', this.cfg.rest, false);
     this.configure(
       'headers',
-      config.rest
-        ? {}
-        : {
-            'Content-Type': 'text/xml',
-          },
+      this.cfg.rest ? {} : {
+        'Content-Type': 'text/xml',
+      },
       false
     );
-    this.Base = Posterior(this.config);
 
+    // create the APIs
+    this.Base = Posterior(this.cfg);
     this.Service = this.Base.extend(
       {
         method: { root: true, value: 'GET' },
@@ -57,8 +60,8 @@ export class GenesisClient {
   }
 
   private configure(key: string, value: any, override: boolean = true) {
-    if (override === true || !(key in this.config)) {
-      (this.config as any)[key] = value;
+    if (override === true || !(key in this.cfg)) {
+      (this.cfg as any)[key] = value;
     }
   }
 }
