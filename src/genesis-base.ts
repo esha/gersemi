@@ -3,7 +3,7 @@ import * as store from 'store2';
 import WSDL from './WSDL';
 
 export type GenesisConfig = Posterior.InputConfig & {
-  rest: boolean
+  rest: boolean;
 };
 export class GenesisClient {
   public Base: Posterior.Requester;
@@ -28,9 +28,11 @@ export class GenesisClient {
     this.configure('json', this.cfg.rest, false);
     this.configure(
       'headers',
-      this.cfg.rest ? {} : {
-        'Content-Type': 'text/xml',
-      },
+      this.cfg.rest
+        ? {}
+        : {
+            'Content-Type': 'text/xml',
+          },
       false
     );
 

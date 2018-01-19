@@ -4,4 +4,3 @@ test('create a client', () => {
   const client = new GenesisClient();
   expect(client).not.toBeNull();
 });
-
