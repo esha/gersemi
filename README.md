@@ -33,6 +33,6 @@ service().then((res) => {
 ```
 
 ### Release History
-* 2017-10 [v0.0.5][] (development)
+* 2018-01 [v0.0.9][] (development)
 
-[v0.0.5]: https://github.com/esha/posterior/tree/0.0.5
+[v0.0.9]: https://github.com/esha/posterior/tree/0.0.9
