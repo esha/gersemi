@@ -42,7 +42,6 @@ export class GenesisClient {
     this.Service = this.Base.extend(
       {
         method: { root: true, value: 'GET' },
-        auto: true,
         singleton: true,
         then: function(xml: any) {
           const wsdl = new WSDL(xml);
@@ -51,10 +50,12 @@ export class GenesisClient {
         },
         Children: {
           Query: {
-            url: 'query.wsdl',
+            auto: true,
+            url: '/query.wsdl',
           },
           Edit: {
-            url: 'edit.wsdl',
+            auto: true,
+            url: '/edit.wsdl',
           },
         },
       },
