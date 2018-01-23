@@ -10,9 +10,10 @@ export class GenesisClient {
   public Service: Posterior.Requester;
   public cfg: GenesisConfig;
 
-  constructor(config?: { [key: string]: any }) {
+  constructor(public url: string, config?: { [key: string]: any }) {
     // start with any stored defaults
-    this.cfg = store.get('Genesis.config', {});
+    this.cfg = store.get('GenesisConfig', {});
+    this.configure('url', url);
 
     // copy over any manual config
     if (config) {
@@ -23,7 +24,7 @@ export class GenesisClient {
     }
 
     // fill in some smart defaults (no overridding!!)
-    this.configure('url', 'http://eshademo.cloudapp.net', false);
+    this.configure('rest', false, false);
     this.configure('method', this.cfg.rest ? 'GET' : 'POST', false);
     this.configure('json', this.cfg.rest, false);
     this.configure(
