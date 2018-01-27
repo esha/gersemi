@@ -1,9 +1,12 @@
 import * as index from '../src/index';
 
-test('Should have GenesisClient available', () => {
-  expect(index.GenesisClient).toBeTruthy();
+test('Should have Client available', () => {
+  expect(index.Client).toBeTruthy();
 });
 
+test('Should have DOM available', () => {
+  expect(index.DOM).toBeTruthy();
+});
 test('Should have XML available', () => {
   expect(index.XML).toBeTruthy();
 });

@@ -1,18 +1,33 @@
-// Yes, a mutable global. Deal with it.
 // While ns abbreviations are per xml document in reality,
 // in practice we want them to be globally consistent.
+// for now, that means we'll put common ones here
 const namespaceMap: { [abbr: string]: string } = {
   xsd: 'http://www.w3.org/2001/XMLSchema',
+  soap: 'http://www.w3.org/2003/05/soap-envelope',
+  wsa: 'http://www.w3.org/2005/08/addressing',
+  gen: 'http://ns.esha.com/2013/genesisapi',
+  exlx: 'http://ns.esha.com/2013/exlx',
+  typ: 'http://ns.esha.com/2013/types',
 };
+export function getAbbr(uri: string) {
+  for (const abbr in namespaceMap) {
+    if (namespaceMap[abbr] === uri) {
+      return abbr;
+    }
+  }
+}
 export function getURI(abbr: string) {
-  return namespaceMap[abbr];
+  return namespaceMap[abbr] || 'http://ns.esha.com/2013/genesisapi/' + abbr;
 }
 export function setURI(abbr: string, uri: string) {
   namespaceMap[abbr] = uri;
 }
 export function setURIs(uris: { [abbr: string]: string }) {
   for (const abbr in uris) {
-    setURI(abbr, uris[abbr]);
+    // only accept overrides via explicit, singular setURI call
+    if (!(abbr in namespaceMap)) {
+      setURI(abbr, uris[abbr]);
+    }
   }
 }
 
@@ -34,12 +49,14 @@ export abstract class Node {
   public abstract toString(): string;
 }
 
+export type content = string | number | boolean;
+
 export interface AttributeMap {
-  [name: string]: string;
+  [name: string]: content;
 }
 
 export class Element extends Node {
-  public children: Array<Element | string> = [];
+  public children: Array<Element | content> = [];
   public attributes: Attribute[] = [];
 
   constructor(public name: string, attrs: AttributeMap = {}) {
@@ -50,7 +67,7 @@ export class Element extends Node {
     }
   }
 
-  public attr(name: string, value: string) {
+  public attr(name: string, value: content) {
     this.attributes.push(new Attribute(name, value));
     return this;
   }
@@ -59,30 +76,58 @@ export class Element extends Node {
     return this.attr('xmlns:' + name, uri);
   }
 
-  public add(...children: Array<Element | string>) {
-    for (const child in children) {
+  public add(...children: Array<Element | content>) {
+    for (const child of children) {
       this.children.push(child);
     }
     return this;
   }
 
-  public toString() {
+  public render(tab: string | 0) {
     const name = this.name;
-    let xml = '<' + name;
-    for (const attr in this.attributes) {
-      xml = ' ' + attr;
+    let newline = '\n';
+    const pretty = tab !== 0;
+    if (!pretty) {
+      tab = '';
+      newline = '';
+    }
+
+    let xml = tab + '<' + name;
+    for (const attr of this.attributes) {
+      xml += ' ' + attr.toString();
     }
     xml += '>';
-    for (const child in this.children) {
-      xml += '\n  ' + child;
+
+    let tabbed = pretty && this.children.length > 1;
+    for (const child of this.children) {
+      if (pretty && child instanceof Element) {
+        tabbed = true;
+        xml += newline + child.render(tab + '  ');
+      } else if (tabbed) {
+        xml += newline + tab + '  ' + child.toString();
+      } else {
+        xml += child.toString();
+      }
+    }
+
+    if (tabbed) {
+      xml += newline + tab;
     }
     xml += '</' + name + '>';
     return xml;
   }
+
+  public toString() {
+    return this.render(0);
+  }
+
+  public toNiceString() {
+    return this.render('');
+  }
 }
 
 export class Attribute extends Node {
-  constructor(public name: string, public value: string) {
+  constructor(public name: string, public value: content) {
     super(name);
   }
 
