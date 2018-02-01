@@ -2,14 +2,12 @@ import * as DOM from './DOM';
 import * as SOAP from './SOAP';
 import * as XML from './XML';
 
-export class Definitions extends DOM.Wrapper {
-  public name: string;
+export class Definitions extends DOM.Wrap {
   public namespaces: { [abbr: string]: string } = {};
 
   constructor(public source: string) {
-    super(DOM.Parser.doc(source));
+    super(DOM.Parser.doc(source).documentElement);
 
-    this.name = this.attr('name') || 'rootDocument';
     this.namespaces = this.readNamespaces();
     XML.setURIs(this.namespaces);
   }
@@ -30,10 +28,10 @@ export class Definitions extends DOM.Wrapper {
   }
 
   public get operations() {
-    const nodes = this.document.querySelectorAll('operation[name]');
+    const elements = this.document.querySelectorAll('operation[name]');
     const ops: { [name: string]: Operation } = {};
-    for (const node of nodes as any) {
-      const op = new Operation(node);
+    for (const element of elements as any) {
+      const op = new Operation(element);
       ops[op.name] = op;
       if (op.name) {
         (this as any)[op.name] = op;
@@ -43,10 +41,10 @@ export class Definitions extends DOM.Wrapper {
   }
 
   get messages() {
-    const nodes = this.document.querySelectorAll('message');
+    const elements = this.document.querySelectorAll('message');
     const msgs: { [name: string]: Message } = {};
-    for (const node of nodes as any) {
-      const msg = new Message(node);
+    for (const element of elements as any) {
+      const msg = new Message(element);
       msgs[msg.name] = msg;
       (this as any)[msg.name] = msg;
     }
@@ -54,34 +52,34 @@ export class Definitions extends DOM.Wrapper {
   }
 }
 
-export class Operation extends DOM.Wrapper {
+export class Operation extends DOM.Wrap {
   public name: string;
-  constructor(public node: Element) {
-    super(node);
+  constructor(public element: Element) {
+    super(element);
     this.name = this.attr('name') || '';
   }
 
   get input(): Element | null {
-    return this.node.querySelector('input');
+    return this.element.querySelector('input');
   }
   get output(): Element | null {
-    return this.node.querySelector('output');
+    return this.element.querySelector('output');
   }
 }
 
-export class Message extends DOM.Wrapper {
+export class Message extends DOM.Wrap {
   public name: string;
-  constructor(public node: Element) {
-    super(node);
+  constructor(public element: Element) {
+    super(element);
     this.name = this.attr('name') || '';
   }
 }
 
-export class Type extends DOM.Wrapper {
+export class Type extends DOM.Wrap {
   public name: string;
 
-  constructor(node: Element, parent?: DOM.Wrapper) {
-    super(node, parent);
+  constructor(element: Element) {
+    super(element);
 
     const nameAttr = this.attr('name');
     if (nameAttr === null) {

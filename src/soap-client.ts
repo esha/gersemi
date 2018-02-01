@@ -63,6 +63,10 @@ export class Client {
             url: Query.PATH,
             requestData: this.listRequester('listunits', url),
           },
+          Foods: {
+            url: Query.PATH,
+            requestData: this.listRequester('listfoods', url),
+          },
         },
       },
       'Endpoints'
@@ -83,6 +87,7 @@ abstract class Request extends SOAP.Request {
     listnutrients: 'NutrientListRequest',
     listallergens: 'AllergenListRequest',
     listunits: 'UnitListRequest',
+    listfoods: 'FoodsListRequest',
   };
 
   constructor(public action: string, public url: string) {
@@ -114,11 +119,11 @@ class Query extends Request {
     super(action, server + Query.PATH);
   }
 }
-class SOAPEdit extends Request {
+class Edit extends Request {
   public static PATH = 'soap/FoodEditService.svc';
 
   constructor(public action: string, public server: string) {
-    super(action, server + SOAPEdit.PATH);
+    super(action, server + Edit.PATH);
   }
 }
 

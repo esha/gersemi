@@ -6,5 +6,5 @@ const minSrc =
   '</wsdl:definitions>';
 
 test('create a Definitions', () => {
-  expect(new WSDL.Definitions(minSrc)).toBeInstanceOf(DOM.Wrapper);
+  expect(new WSDL.Definitions(minSrc)).toBeInstanceOf(DOM.Wrap);
 });

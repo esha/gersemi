@@ -78,9 +78,10 @@ async function expectListPromise(listPromise) {
     return null;
   });
   expect(doc).not.toBe(null);
-  expect(doc).toBeInstanceOf(DOM.Wrapper);
-  const status = doc.query('StatusCode');
-  expect(status).toBeInstanceOf(DOM.Wrapper);
+  expect(doc).toBeInstanceOf(DOM.Wrap);
+  const status: DOM.Wrap = doc.query('StatusCode');
+  expect(status).toBeInstanceOf(DOM.Wrap);
+  expect(status.text).toBe('200');
   return doc;
 }
 
@@ -92,4 +93,17 @@ test('Allergens via Endpoints', async () => {
 });
 test('Units via Endpoints', async () => {
   const doc = await expectListPromise(genesis.Endpoints.Units());
+  const unitList = doc.query('Unit');
+  expect(unitList.length).toBeGreaterThan(1);
+
+  const response = doc.query('UnitListResponse');
+  expect(response).not.toBe(null);
+  const value = response.value;
+  const units = value.Units;
+  expect(units).not.toBe(null);
+  expect(units).toBeInstanceOf(Array);
+  expect(units.length).toBe(unitList.length);
+});
+test('Food via Endpoints', async () => {
+  const doc = await expectListPromise(genesis.Endpoints.Foods());
 });

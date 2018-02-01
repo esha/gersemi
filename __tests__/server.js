@@ -34,8 +34,8 @@ function print(log) {
 }
 
 app.use(cors());
-app.use(bodyParser.text({ type: ['text/*', 'application/soap+xml'] }));
-app.use(bodyParser.json());
+//app.use(bodyParser.text({ type: ['text/*', 'application/soap+xml'] }));
+//app.use(bodyParser.json());
 //app.use(logfmt.requestLogger({immediate: true}, log));
 
 app.all('/*', function(req, res) {
