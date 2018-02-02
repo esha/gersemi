@@ -15,7 +15,7 @@ export class Client {
   public WSDL: Posterior.Requester & {
     [Sub: string]: Posterior.Requester;
   };
-  public Endpoints: Posterior.Requester & {
+  public Query: Posterior.Requester & {
     [Sub: string]: Posterior.Requester;
   };
   public config: Posterior.InputConfig;
@@ -43,8 +43,9 @@ export class Client {
       'WSDL'
     );
 
-    this.Endpoints = this.Base.extend(
+    this.Query = this.Base.extend(
       {
+        url: Query.PATH,
         method: 'POST',
         headers: {
           'Content-Type': 'application/soap+xml',
@@ -52,34 +53,56 @@ export class Client {
         then: (res: string) => DOM.Parser.dom(res),
         Children: {
           Nutrients: {
-            url: Query.PATH,
-            requestData: this.listRequester('listnutrients', url),
+            requestData: this.queryTranslator('listnutrients', url, 'PageSize'),
           },
           Allergens: {
-            url: Query.PATH,
-            requestData: this.listRequester('listallergens', url),
+            requestData: this.queryTranslator('listallergens', url, 'PageSize'),
           },
           Units: {
-            url: Query.PATH,
-            requestData: this.listRequester('listunits', url),
+            requestData: this.queryTranslator('listunits', url, 'PageSize'),
           },
           Foods: {
-            url: Query.PATH,
-            requestData: this.listRequester('listfoods', url),
+            requestData: this.queryTranslator('listfoods', url, 'PageSize'),
+          },
+          ByGroup: {
+            requestData: this.queryTranslator(
+              'searchbygroup',
+              url,
+              'GroupName'
+            ),
+          },
+          ByModifiedDateRange: {
+            requestData: this.queryTranslator('searchbymodifieddaterange', url),
+          },
+          ByName: {
+            requestData: this.queryTranslator('searchbyname', url, 'FoodName'),
           },
         },
       },
-      'Endpoints'
+      'Query'
     );
   }
 
-  private listRequester(action: string, url: string) {
-    return (data?: number | { StartIndex?: number; PageSize?: number }) => {
-      return new Query(action, url)
-        .params(typeof data === 'number' ? { StartIndex: data } : data)
-        .toString();
+  private queryTranslator(action: string, url: string, defaultName?: string) {
+    return (data?: Params) => {
+      if (defaultName && data instanceof Array) {
+        const value = data;
+        data = {};
+        data[defaultName] = value.length > 1 ? value : value[0];
+      }
+      return new Query(action, url).params(data).toString();
     };
   }
+}
+
+export type ParamValue =
+  | XML.Element
+  | DOM.JSONObject
+  | string
+  | number
+  | boolean;
+export interface Params {
+  [name: string]: ParamValue;
 }
 
 abstract class Request extends SOAP.Request {
@@ -88,22 +111,33 @@ abstract class Request extends SOAP.Request {
     listallergens: 'AllergenListRequest',
     listunits: 'UnitListRequest',
     listfoods: 'FoodsListRequest',
+    searchbygroup: 'FoodsByGroupRequest',
+    searchbymodifieddaterange: 'FoodsByModifiedDateRangeRequest',
+    searchbyname: 'FoodsByNameRequest',
   };
+  public request: SOAP.Element;
 
   constructor(public action: string, public url: string) {
     super(action, url, 'gen');
-    this.body.add(new SOAP.Element('gen:' + Request.BODIES[action]));
+    this.request = new SOAP.Element('gen:' + Request.BODIES[action]);
+    this.body.add(this.request);
   }
 
-  public param(name: string, value?: XML.Element | string | boolean | number) {
+  public param(name: string, value?: ParamValue) {
     if (value !== null && value !== undefined) {
-      this.body.add(new SOAP.Element('gen:' + name).add(value));
+      const paramElement = new SOAP.Element('gen:' + name);
+      if (value instanceof XML.Element || typeof value === 'string') {
+        paramElement.add(value);
+      } else if (typeof value === 'object') {
+        XML.fromJSON(value, paramElement, 'gen:');
+      } else {
+        paramElement.add(JSON.stringify(value));
+      }
+      this.request.add(paramElement);
     }
     return this;
   }
-  public params(params?: {
-    [name: string]: XML.Element | string | boolean | number | undefined;
-  }) {
+  public params(params?: Params) {
     if (params) {
       for (const name in params) {
         this.param(name, params[name]);

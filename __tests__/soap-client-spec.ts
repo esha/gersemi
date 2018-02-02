@@ -47,9 +47,9 @@ test('multiple client creation, structure, and default cfg', () => {
   expect(client.WSDL.Query.cfg._parent).toBeTruthy();
   expect(client.WSDL.Query.cfg._parent).toBe(client.WSDL.cfg);
 
-  expectPosterior(client.Endpoints);
-  expect(client.Endpoints.method).toBe('POST');
-  expect(client.Endpoints.headers).toMatchObject({
+  expectPosterior(client.Query);
+  expect(client.Query.method).toBe('POST');
+  expect(client.Query.headers).toMatchObject({
     'Content-Type': 'application/soap+xml',
   });
 });
@@ -85,14 +85,17 @@ async function expectListPromise(listPromise) {
   return doc;
 }
 
-test('Nutrients via Endpoints', async () => {
-  const doc = await expectListPromise(genesis.Endpoints.Nutrients());
+test('Allergens query', async () => {
+  const doc = await expectListPromise(genesis.Query.Allergens());
 });
-test('Allergens via Endpoints', async () => {
-  const doc = await expectListPromise(genesis.Endpoints.Allergens());
+test('Nutrients query', async () => {
+  const pageSize = 5;
+  const doc = await expectListPromise(genesis.Query.Nutrients(pageSize));
+  const nutrientList = doc.query('Nutrient');
+  expect(nutrientList.length).toBe(pageSize);
 });
-test('Units via Endpoints', async () => {
-  const doc = await expectListPromise(genesis.Endpoints.Units());
+test('Units query', async () => {
+  const doc = await expectListPromise(genesis.Query.Units());
   const unitList = doc.query('Unit');
   expect(unitList.length).toBeGreaterThan(1);
 
@@ -104,6 +107,42 @@ test('Units via Endpoints', async () => {
   expect(units).toBeInstanceOf(Array);
   expect(units.length).toBe(unitList.length);
 });
-test('Food via Endpoints', async () => {
-  const doc = await expectListPromise(genesis.Endpoints.Foods());
+test('Food list query', async () => {
+  const doc = await expectListPromise(
+    genesis.Query.Foods({
+      PageSize: 2,
+      FilterByFoodTypes: {
+        FoodType: 'Recipe',
+      },
+    })
+  );
+  const list = doc.query('Recipe');
+  expect(list.length).toBe(2);
 });
+test('foods by group query', async () => {
+  const doc = await expectListPromise(genesis.Query.ByGroup('My Recipes'));
+  const mine = doc.query('Recipe');
+  expect(mine.length).toBeGreaterThan(0);
+});
+test('foods by name', async () => {
+  const doc = await expectListPromise(genesis.Query.ByName('Cha'));
+  const matches = doc.query('Recipe');
+  expect(matches.length).toBeGreaterThan(0);
+});
+
+/*test('foods by modified date range', async () => {
+  const doc = await expectListPromise(
+    genesis.Query.ByModifiedDateRange({
+      Start: {
+        'typ:DateTime': '2016-01-01T00:00:00',
+        'typ:UtcOffsetInMinutes': -420,
+      },
+      End: {
+        'typ:DateTime': '2016-12-31T23:59:59',
+        'typ:UtcOffsetInMinutes': -420,
+      },
+    })
+  );
+  const mine = doc.query('Recipe');
+  expect(mine.length).toBe(1);
+});*/
