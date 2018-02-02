@@ -113,4 +113,12 @@ test('fromJSON', () => {
   expect(XML.fromJSON(valattrs).toString()).toBe(
     '<Value attr="attrvalue">valuable</Value>'
   );
+
+  const ns = {
+    Foo: { Bar: true, 'ons:Baz': false },
+  };
+  const nsroot = new XML.Element('ns:root');
+  expect(XML.fromJSON(ns, nsroot, 'ns:').toString()).toBe(
+    '<ns:root><ns:Foo><ns:Bar>true</ns:Bar><ons:Baz>false</ons:Baz></ns:Foo></ns:root>'
+  );
 });

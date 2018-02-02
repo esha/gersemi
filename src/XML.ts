@@ -57,24 +57,25 @@ export interface AttributeMap {
   [name: string]: content;
 }
 
-// TODO: this code desperately needs broken/cleaned up
+// TODO: this code desperately needs broken up and cleaned up
 export function fromJSON(
   json: DOM.JSONObject,
-  root = new Element('root')
+  root = new Element('root'),
+  ns = ''
 ): Element {
   for (const name in json) {
     if (name !== '_attributes' && name !== '_value') {
-      const el = new Element(name);
+      const el = new Element(name.indexOf(':') < 0 ? ns + name : name);
       root.add(el);
       let value = json[name];
       const isObject = value && typeof value === 'object';
       const attrs = isObject && value && (value as any)['_attributes'];
       if (value instanceof Array) {
         for (const val of value) {
-          fromJSON(val as DOM.JSONObject, el);
+          fromJSON(val as DOM.JSONObject, el, ns);
         }
       } else if (isObject && !(value as any)['_value']) {
-        fromJSON(value as DOM.JSONObject, el);
+        fromJSON(value as DOM.JSONObject, el, ns);
       } else {
         if (attrs) {
           value = (value as any)['_value'];
@@ -88,7 +89,9 @@ export function fromJSON(
       }
     }
   }
-  return root.children.length === 1 ? root.children[0] as Element : root;
+  return root.name === 'root' && root.children.length === 1
+    ? root.children[0] as Element
+    : root;
 }
 
 export class Element extends Node {
