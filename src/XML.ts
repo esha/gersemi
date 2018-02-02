@@ -57,13 +57,14 @@ export interface AttributeMap {
   [name: string]: content;
 }
 
+// TODO: this code desperately needs broken/cleaned up
 export function fromJSON(
   json: DOM.JSONObject,
   root = new Element('root')
 ): Element {
   for (const name in json) {
     if (name !== '_attributes' && name !== '_value') {
-      const el = new Element(name); // TODO: , json.attributes);
+      const el = new Element(name);
       root.add(el);
       let value = json[name];
       const isObject = value && typeof value === 'object';
