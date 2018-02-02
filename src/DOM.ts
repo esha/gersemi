@@ -54,6 +54,10 @@ export class Wrap {
     return this.element.getAttribute(name);
   }
 
+  public hasAttributes(): boolean {
+    return this.element.hasAttributes();
+  }
+
   public get attributes(): { [name: string]: string } {
     if (this.attrs === null) {
       this.attrs = {};
@@ -164,7 +168,12 @@ export class ToJSON {
       ? ToJSON.isArrayLike(wrap)
         ? ToJSON.array(wrap.children)
         : ToJSON.object(wrap)
-      : ToJSON.string(wrap.text);
+      : wrap.hasAttributes()
+        ? {
+            _attributes: wrap.attributes,
+            _value: ToJSON.string(wrap.text),
+          }
+        : ToJSON.string(wrap.text);
   }
 
   public static array(list: Wrap[]): JSONArray {
@@ -180,6 +189,9 @@ export class ToJSON {
     for (const name in wrap.childMap) {
       const wraps = wrap.childMap[name];
       obj[name] = wraps.length > 1 ? ToJSON.array(wraps) : ToJSON.any(wraps[0]);
+    }
+    if (wrap.hasAttributes()) {
+      obj._attributes = wrap.attributes;
     }
     return obj;
   }

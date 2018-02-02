@@ -84,9 +84,23 @@ test('Wrap.json() nested object', () => {
   const json = dom.json();
   expect(json).toMatchObject({
     Unit: {
-      Id: 'a7df0af5-0001-0000-7484-751e8eaf05c6',
+      Id: {
+        _attributes: {
+          xmlns: 'http://ns.esha.com/2013/exlx',
+        },
+        _value: 'a7df0af5-0001-0000-7484-751e8eaf05c6',
+      },
       Name: {
-        Value: 'Teaspoon',
+        _attributes: {
+          xmlns: 'http://ns.esha.com/2013/exlx',
+        },
+        Value: {
+          _attributes: {
+            'xml:lang': 'en-US',
+            xmlns: 'http://ns.esha.com/2013/types',
+          },
+          _value: 'Teaspoon',
+        },
       },
     },
   });
