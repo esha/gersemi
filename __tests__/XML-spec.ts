@@ -68,3 +68,49 @@ test('mixed kids', () => {
     '<foo bar="true">\n  <fig>wig</fig>\n  woogie\n</foo>'
   );
 });
+
+test('fromJSON', () => {
+  const simple = {
+    Value: 'valuable',
+  };
+  expect(XML.fromJSON(simple).toString()).toBe('<Value>valuable</Value>');
+
+  const nested = {
+    Parent: {
+      Value: 17,
+    },
+  };
+  expect(XML.fromJSON(nested).toString()).toBe(
+    '<Parent><Value>17</Value></Parent>'
+  );
+
+  const array = {
+    Items: [{ Item: 1 }, { Item: true }, { Item: 'three' }],
+  };
+  expect(XML.fromJSON(array).toString()).toBe(
+    '<Items><Item>1</Item><Item>true</Item><Item>three</Item></Items>'
+  );
+
+  const attrs = {
+    Parent: {
+      _attributes: { xmlns: 'bar' },
+      Value: 17,
+      Other: true,
+    },
+  };
+  expect(XML.fromJSON(attrs).toString()).toBe(
+    '<Parent xmlns="bar"><Value>17</Value><Other>true</Other></Parent>'
+  );
+
+  const valattrs = {
+    Value: {
+      _attributes: {
+        attr: 'attrvalue',
+      },
+      _value: 'valuable',
+    },
+  };
+  expect(XML.fromJSON(valattrs).toString()).toBe(
+    '<Value attr="attrvalue">valuable</Value>'
+  );
+});

@@ -1,3 +1,5 @@
+import * as DOM from './DOM';
+
 // While ns abbreviations are per xml document in reality,
 // in practice we want them to be globally consistent.
 // for now, that means we'll put common ones here
@@ -53,6 +55,39 @@ export type content = string | number | boolean;
 
 export interface AttributeMap {
   [name: string]: content;
+}
+
+export function fromJSON(
+  json: DOM.JSONObject,
+  root = new Element('root')
+): Element {
+  for (const name in json) {
+    if (name !== '_attributes' && name !== '_value') {
+      const el = new Element(name); // TODO: , json.attributes);
+      root.add(el);
+      let value = json[name];
+      const isObject = value && typeof value === 'object';
+      const attrs = isObject && value && (value as any)['_attributes'];
+      if (value instanceof Array) {
+        for (const val of value) {
+          fromJSON(val as DOM.JSONObject, el);
+        }
+      } else if (isObject && !(value as any)['_value']) {
+        fromJSON(value as DOM.JSONObject, el);
+      } else {
+        if (attrs) {
+          value = (value as any)['_value'];
+        }
+        el.add(typeof value !== 'string' ? JSON.stringify(value) : value);
+      }
+      if (attrs) {
+        for (const attrName in attrs) {
+          el.attr(attrName, attrs[attrName]);
+        }
+      }
+    }
+  }
+  return root.children.length === 1 ? root.children[0] as Element : root;
 }
 
 export class Element extends Node {
