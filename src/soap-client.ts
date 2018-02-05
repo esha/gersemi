@@ -18,6 +18,9 @@ export class Client {
   public Query: Posterior.Requester & {
     [Sub: string]: Posterior.Requester;
   };
+  public Edit: Posterior.Requester & {
+    [Sub: string]: Posterior.Requester;
+  };
   public config: Posterior.InputConfig;
 
   constructor(public url: string, cfg: Posterior.InputConfig = {}) {
@@ -53,46 +56,99 @@ export class Client {
         then: (res: string) => DOM.Parser.dom(res),
         Children: {
           Nutrients: {
-            requestData: this.queryTranslator('listnutrients', url, 'PageSize'),
+            requestData: queryTranslator('listnutrients', url, 'PageSize'),
           },
           Allergens: {
-            requestData: this.queryTranslator('listallergens', url, 'PageSize'),
+            requestData: queryTranslator('listallergens', url, 'PageSize'),
           },
           Units: {
-            requestData: this.queryTranslator('listunits', url, 'PageSize'),
+            requestData: queryTranslator('listunits', url, 'PageSize'),
           },
           Foods: {
-            requestData: this.queryTranslator('listfoods', url, 'PageSize'),
+            requestData: queryTranslator('listfoods', url, 'PageSize'),
           },
           ByGroup: {
-            requestData: this.queryTranslator(
-              'searchbygroup',
-              url,
-              'GroupName'
-            ),
+            requestData: queryTranslator('searchbygroup', url, 'GroupName'),
           },
           ByModifiedDateRange: {
-            requestData: this.queryTranslator('searchbymodifieddaterange', url),
+            requestData: queryTranslator('searchbymodifieddaterange', url),
           },
           ByName: {
-            requestData: this.queryTranslator('searchbyname', url, 'FoodName'),
+            requestData: queryTranslator('searchbyname', url, 'FoodName'),
+          },
+          ById: {
+            requestData: queryTranslator('getfood', url, 'FoodId'),
+          },
+          ByUserCode: {
+            requestData: queryTranslator('getfood', url, 'UserCode'),
+          },
+          Analysis: {
+            requestData: queryTranslator('getanalysis', url),
+          },
+          UserCodes: {
+            requestData: queryTranslator('listfoodusercodes', url, 'PageSize'),
           },
         },
       },
       'Query'
     );
+    this.Edit = this.Base.extend(
+      {
+        url: Edit.PATH,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/soap+xml',
+        },
+        Children: {
+          NewFood: {
+            requestData: editTranslator('newfood', url),
+          },
+          UpdateFood: {
+            requestData: editTranslator('updatefood', url),
+          },
+        },
+      },
+      'Edit'
+    );
   }
+}
 
-  private queryTranslator(action: string, url: string, defaultName?: string) {
-    return (data?: Params) => {
-      if (defaultName && data instanceof Array) {
-        const value = data;
-        data = {};
-        data[defaultName] = value.length > 1 ? value : value[0];
+export function editTranslator(
+  action: string,
+  url: string,
+  defaultName?: string
+) {
+  return translator(() => new Edit(action, url), defaultName);
+}
+export function queryTranslator(
+  action: string,
+  url: string,
+  defaultName?: string
+) {
+  return translator(() => new Query(action, url), defaultName);
+}
+export function translator(ctor: () => Request, defaultName?: string) {
+  return (data?: Params) => {
+    const request = ctor();
+    if (data instanceof Array) {
+      if (
+        data.length === 1 &&
+        typeof data[0] === 'string' &&
+        lookslikeXML(data[0])
+      ) {
+        request.setRequestBody(data[0]);
+      } else if (defaultName) {
+        request.param(defaultName, data.length > 1 ? data : data[0]);
       }
-      return new Query(action, url).params(data).toString();
-    };
-  }
+      data = undefined; // already set the data, thanks
+    }
+    return request.params(data).toString();
+  };
+}
+
+function lookslikeXML(s: string) {
+  s = s.trim();
+  return s.charAt(0) === '<' && s.charAt(s.length - 1) === '>';
 }
 
 export type ParamValue =
@@ -105,7 +161,7 @@ export interface Params {
   [name: string]: ParamValue;
 }
 
-abstract class Request extends SOAP.Request {
+export abstract class Request extends SOAP.Request {
   public static BODIES: { [action: string]: string } = {
     listnutrients: 'NutrientListRequest',
     listallergens: 'AllergenListRequest',
@@ -114,6 +170,17 @@ abstract class Request extends SOAP.Request {
     searchbygroup: 'FoodsByGroupRequest',
     searchbymodifieddaterange: 'FoodsByModifiedDateRangeRequest',
     searchbyname: 'FoodsByNameRequest',
+    getfood: 'FoodMetadataRequest',
+    getanalysis: 'FoodAnalysisRequest',
+    listfoodusercodes: 'FoodUserCodesListRequest',
+    listgroups: 'GroupListRequest',
+    getconversions: 'FoodConversionsRequest',
+    search: 'FoodsRequest',
+    searchbyproperty: 'FoodsByPropertyRequest',
+    listrecommendationprofiles: 'RecommendationProfilesListRequest',
+    listauthorities: 'AuthorityListRequest',
+    newfood: 'NewFoodRequest',
+    updatefood: 'UpdateFoodRequest',
   };
   public request: SOAP.Element;
 
@@ -123,6 +190,9 @@ abstract class Request extends SOAP.Request {
     this.body.add(this.request);
   }
 
+  public setRequestBody(xml: string) {
+    this.request.add(xml);
+  }
   public param(name: string, value?: ParamValue) {
     if (value !== null && value !== undefined) {
       const paramElement = new SOAP.Element('gen:' + name);
