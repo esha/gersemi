@@ -6,7 +6,7 @@ import * as WSDL from '../src/WSDL';
 // Until server is CORS-friendly, use the proxy
 // const genesisUrl = 'http://esha-sandbox.westus.cloudapp.azure.com/';
 const genesisUrl = 'http://localhost:8008/';
-const genesis = new Client(genesisUrl);
+const Genesis = new Client(genesisUrl);
 
 // Util functions
 function expectFunction(fn: any) {
@@ -28,6 +28,18 @@ function expectWSDL(wsdl: any) {
   expect(wsdl).not.toBe(null);
   expect(wsdl).toBeInstanceOf(WSDL.Definitions);
   expect(wsdl.node).not.toBe(null);
+}
+async function expectOkResponse(promise) {
+  expectPromise(promise);
+  const doc = await promise.catch(e => {
+    return null;
+  });
+  expect(doc).not.toBe(null);
+  expect(doc).toBeInstanceOf(DOM.Wrap);
+  const status: DOM.Wrap = doc.query('StatusCode');
+  expect(status).toBeInstanceOf(DOM.Wrap);
+  expect(status.text).toBe('200');
+  return doc;
 }
 
 test('multiple client creation, structure, and default cfg', () => {
@@ -55,47 +67,34 @@ test('multiple client creation, structure, and default cfg', () => {
 });
 
 test('query wsdl', async () => {
-  const queryUrl = genesis.WSDL.Query.config('url');
+  const queryUrl = Genesis.WSDL.Query.config('url');
   expect(queryUrl).toBe(genesisUrl + 'query.wsdl');
-  const wsdlPromise = genesis.WSDL.Query();
+  const wsdlPromise = Genesis.WSDL.Query();
   expectPromise(wsdlPromise);
   const result = await wsdlPromise.catch(e => null);
   expectWSDL(result);
 });
 
 test('edit wsdl', async () => {
-  const editUrl = genesis.WSDL.Edit.config('url');
+  const editUrl = Genesis.WSDL.Edit.config('url');
   expect(editUrl).toBe(genesisUrl + 'edit.wsdl');
-  const wsdlPromise = genesis.WSDL.Edit();
+  const wsdlPromise = Genesis.WSDL.Edit();
   expectPromise(wsdlPromise);
   const result = await wsdlPromise.catch(e => null);
   expectWSDL(result);
 });
 
-async function expectListPromise(listPromise) {
-  expectPromise(listPromise);
-  const doc = await listPromise.catch(e => {
-    return null;
-  });
-  expect(doc).not.toBe(null);
-  expect(doc).toBeInstanceOf(DOM.Wrap);
-  const status: DOM.Wrap = doc.query('StatusCode');
-  expect(status).toBeInstanceOf(DOM.Wrap);
-  expect(status.text).toBe('200');
-  return doc;
-}
-
 test('Allergens query', async () => {
-  const doc = await expectListPromise(genesis.Query.Allergens());
+  const doc = await expectOkResponse(Genesis.Query.Allergens());
 });
 test('Nutrients query', async () => {
   const pageSize = 5;
-  const doc = await expectListPromise(genesis.Query.Nutrients(pageSize));
+  const doc = await expectOkResponse(Genesis.Query.Nutrients(pageSize));
   const nutrientList = doc.query('Nutrient');
   expect(nutrientList.length).toBe(pageSize);
 });
 test('Units query', async () => {
-  const doc = await expectListPromise(genesis.Query.Units());
+  const doc = await expectOkResponse(Genesis.Query.Units());
   const unitList = doc.query('Unit');
   expect(unitList.length).toBeGreaterThan(1);
 
@@ -108,8 +107,8 @@ test('Units query', async () => {
   expect(units.length).toBe(unitList.length);
 });
 test('Food list query', async () => {
-  const doc = await expectListPromise(
-    genesis.Query.Foods({
+  const doc = await expectOkResponse(
+    Genesis.Query.Foods({
       PageSize: 2,
       FilterByFoodTypes: {
         FoodType: 'Recipe',
@@ -120,19 +119,18 @@ test('Food list query', async () => {
   expect(list.length).toBe(2);
 });
 test('foods by group query', async () => {
-  const doc = await expectListPromise(genesis.Query.ByGroup('My Recipes'));
+  const doc = await expectOkResponse(Genesis.Query.ByGroup('My Recipes'));
   const mine = doc.query('Recipe');
   expect(mine.length).toBeGreaterThan(0);
 });
 test('foods by name', async () => {
-  const doc = await expectListPromise(genesis.Query.ByName('Cha'));
+  const doc = await expectOkResponse(Genesis.Query.ByName('Cha'));
   const matches = doc.query('Recipe');
   expect(matches.length).toBeGreaterThan(0);
 });
-
 /*test('foods by modified date range', async () => {
-  const doc = await expectListPromise(
-    genesis.Query.ByModifiedDateRange({
+  const doc = await expectOkResponse(
+    Genesis.Query.ByModifiedDateRange({
       Start: {
         'typ:DateTime': '2016-01-01T00:00:00',
         'typ:UtcOffsetInMinutes': -420,
@@ -145,4 +143,20 @@ test('foods by name', async () => {
   );
   const mine = doc.query('Recipe');
   expect(mine.length).toBe(1);
+});*/
+/*test('food by food id', async () => {
+  const id = 'dbfac0f0-bfa4-4935-27c3-41e8c688e289';
+  const doc = await expectOkResponse(Genesis.Query.ById(id));
+  expect(doc.query('Recipe Id').text).toBe(id);
+});*/
+
+/*test('analysis', async () => {
+  jest.setTimeout(10000);
+  const doc = await expectOkResponse(
+    Genesis.Query.Analysis(
+      `<gen:Quantity type="Double">1</gen:Quantity>
+      <gen:UnitId>a7df0af5-001f-0000-7484-751e8eaf05c6</gen:UnitId>
+      <gen:FoodId>dbfac0f0-bfa4-4935-27c3-41e8c688e289</gen:FoodId>`
+    )
+  );
 });*/
