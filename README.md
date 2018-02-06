@@ -10,29 +10,19 @@ Here is a quick example of how this module can be used in other modules. The [Ty
 
 Once published to _npm_ with the name `gersemi`, this module can be installed in the module in which you need it -
 
-- To use the `GenesisBase` class in a TypeScript file -
+- To use the `Client` class in a TypeScript file -
 
 ```ts
-import { GenesisBase } from "gersemi";
+import { Client } from "gersemi";
 
-const service = GenesisBase.extend({ url: '/some-url' });
-service().then((res) => {
+const Genesis = new Client('/some-proxy-url);
+Genesis.Query.ByUserCode(12).then((res) => {
     console.log('Success!', res);
 });
 ```
 
-- To use the `GenesisBase` class in a JavaScript file -
-
-```js
-const GenesisBase = require('gersemi').GenesisBase;
-
-const service = GenesisBase.extend({ url: '/some-url' });
-service().then((res) => {
-    console.log('Success!', res);
-});
-```
 
 ### Release History
-* 2018-01 [v0.0.9][] (development)
+* 2018-02 [v0.1.0][] (development)
 
-[v0.0.9]: https://github.com/esha/posterior/tree/0.0.9
+[v0.1.0]: https://github.com/esha/posterior/tree/0.1.0
