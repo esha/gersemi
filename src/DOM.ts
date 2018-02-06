@@ -1,3 +1,5 @@
+import * as XML from './XML';
+
 export type JSON = boolean | number | string | null | JSONArray | JSONObject;
 export interface JSONObject {
   [key: string]: JSON;
@@ -143,8 +145,17 @@ export class Wrap {
     return ToJSON.string(this.text);
   }
 
-  public json(): JSON {
+  public json(): JSONObject {
     return ToJSON.root(this);
+  }
+
+  public xml(): XML.Element {
+    return XML.fromJSON(this.json());
+  }
+
+  public toString(nice: boolean = true) {
+    const element = this.xml();
+    return nice ? element.toNiceString() : element.toString();
   }
 }
 
@@ -157,8 +168,8 @@ export class ToJSON {
     }
   }
 
-  public static root(wrap: Wrap): JSON {
-    const root: JSON = {};
+  public static root(wrap: Wrap): JSONObject {
+    const root: JSONObject = {};
     root[wrap.name] = ToJSON.any(wrap);
     return root;
   }
