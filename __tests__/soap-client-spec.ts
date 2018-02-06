@@ -128,35 +128,40 @@ test('foods by name', async () => {
   const matches = doc.query('Recipe');
   expect(matches.length).toBeGreaterThan(0);
 });
-/*test('foods by modified date range', async () => {
+test('foods by modified date range', async () => {
   const doc = await expectOkResponse(
     Genesis.Query.ByModifiedDateRange({
       Start: {
-        'typ:DateTime': '2016-01-01T00:00:00',
+        'typ:DateTime': '2013-01-01T00:00:00',
         'typ:UtcOffsetInMinutes': -420,
       },
       End: {
-        'typ:DateTime': '2016-12-31T23:59:59',
+        'typ:DateTime': '2015-12-31T23:59:59',
         'typ:UtcOffsetInMinutes': -420,
       },
     })
   );
   const mine = doc.query('Recipe');
-  expect(mine.length).toBe(1);
-});*/
-/*test('food by food id', async () => {
-  const id = 'dbfac0f0-bfa4-4935-27c3-41e8c688e289';
+  expect(mine.length).toBeGreaterThan(1);
+});
+test('food by food id', async () => {
+  const id = '798422bd-c422-1f6c-1358-ba860e2e8d71';
   const doc = await expectOkResponse(Genesis.Query.ById(id));
-  expect(doc.query('Recipe Id').text).toBe(id);
-});*/
+  const recipe = doc.query('Recipe');
+  expect(recipe).not.toBe(null);
+  expect(recipe).toBeInstanceOf(DOM.Wrap);
+  const name = doc.query('Recipe Name Value');
+  expect(name).not.toBe(null);
+  expect(name.value).toBe('Aniseed Syrup');
+});
 
-/*test('analysis', async () => {
+test('analysis', async () => {
   jest.setTimeout(10000);
   const doc = await expectOkResponse(
     Genesis.Query.Analysis(
-      `<gen:Quantity type="Double">1</gen:Quantity>
+      `<gen:Quantity Type="Double">1</gen:Quantity>
       <gen:UnitId>a7df0af5-001f-0000-7484-751e8eaf05c6</gen:UnitId>
-      <gen:FoodId>dbfac0f0-bfa4-4935-27c3-41e8c688e289</gen:FoodId>`
+      <gen:FoodId>798422bd-c422-1f6c-1358-ba860e2e8d71</gen:FoodId>`
     )
   );
-});*/
+});
