@@ -154,6 +154,15 @@ test('food by food id', async () => {
   expect(name).not.toBe(null);
   expect(name.value).toBe('Aniseed Syrup');
 });
+test('food by user code', async () => {
+  const doc = await expectOkResponse(Genesis.Query.ByUserCode(15));
+  const recipe = doc.query('Recipe');
+  expect(recipe).not.toBe(null);
+  expect(recipe).toBeInstanceOf(DOM.Wrap);
+  const name = doc.query('Recipe Name Value');
+  expect(name).not.toBe(null);
+  expect(name.value).toBe('Genen Shouyu');
+});
 
 test('analysis', async () => {
   jest.setTimeout(10000);
