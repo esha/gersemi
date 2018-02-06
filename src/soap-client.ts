@@ -71,7 +71,12 @@ export class Client {
             requestData: queryTranslator('searchbygroup', url, 'GroupName'),
           },
           ByModifiedDateRange: {
-            requestData: queryTranslator('searchbymodifieddaterange', url),
+            requestData: queryTranslator(
+              'searchbymodifieddaterange',
+              url,
+              undefined,
+              ['typ']
+            ),
           },
           ByName: {
             requestData: queryTranslator('searchbyname', url, 'FoodName'),
@@ -116,16 +121,18 @@ export class Client {
 export function editTranslator(
   action: string,
   url: string,
-  defaultName?: string
+  defaultName?: string,
+  namespaces?: string[]
 ) {
-  return translator(() => new Edit(action, url), defaultName);
+  return translator(() => new Edit(action, url, namespaces), defaultName);
 }
 export function queryTranslator(
   action: string,
   url: string,
-  defaultName?: string
+  defaultName?: string,
+  namespaces?: string[]
 ) {
-  return translator(() => new Query(action, url), defaultName);
+  return translator(() => new Query(action, url, namespaces), defaultName);
 }
 export function translator(ctor: () => Request, defaultName?: string) {
   return (data?: Params) => {
@@ -184,8 +191,17 @@ export abstract class Request extends SOAP.Request {
   };
   public request: SOAP.Element;
 
-  constructor(public action: string, public url: string) {
+  constructor(
+    public action: string,
+    public url: string,
+    namespaces?: string[]
+  ) {
     super(action, url, 'gen');
+    if (namespaces) {
+      namespaces.forEach(ns => {
+        this.ns(ns, XML.getURI(ns));
+      });
+    }
     this.request = new SOAP.Element('gen:' + Request.BODIES[action]);
     this.body.add(this.request);
   }
@@ -219,15 +235,23 @@ export abstract class Request extends SOAP.Request {
 class Query extends Request {
   public static PATH = 'soap/FoodQueryService.svc';
 
-  constructor(public action: string, public server: string) {
-    super(action, server + Query.PATH);
+  constructor(
+    public action: string,
+    public server: string,
+    public namespaces?: string[]
+  ) {
+    super(action, server + Query.PATH, namespaces);
   }
 }
 class Edit extends Request {
   public static PATH = 'soap/FoodEditService.svc';
 
-  constructor(public action: string, public server: string) {
-    super(action, server + Edit.PATH);
+  constructor(
+    public action: string,
+    public server: string,
+    public namespaces?: string[]
+  ) {
+    super(action, server + Edit.PATH, namespaces);
   }
 }
 
