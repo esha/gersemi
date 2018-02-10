@@ -6,7 +6,7 @@ import * as WSDL from '../src/WSDL';
 // Until server is CORS-friendly, use the proxy
 // const genesisUrl = 'http://esha-sandbox.westus.cloudapp.azure.com/';
 const genesisUrl = 'http://localhost:8008/';
-const Genesis = new Client(genesisUrl);
+const Genesis = new Client(genesisUrl, { debug: true });
 
 // Util functions
 function expectFunction(fn: any) {
@@ -20,7 +20,7 @@ function expectPromise(promise: any) {
 }
 function expectPosterior(requester: any) {
   expectFunction(requester);
-  expect(requester.cfg).toBeInstanceOf(Object);
+  expect(requester.metaCfg).toBeInstanceOf(Object);
   expectFunction(requester.config);
   expectFunction(requester.extend);
 }
@@ -29,12 +29,16 @@ function expectWSDL(wsdl: any) {
   expect(wsdl).toBeInstanceOf(WSDL.Definitions);
   expect(wsdl.node).not.toBe(null);
 }
-async function expectOkResponse(promise) {
+async function expectPromisedResult(promise) {
   expectPromise(promise);
-  const doc = await promise.catch(e => {
+  const result = await promise.catch(e => {
     return null;
   });
-  expect(doc).not.toBe(null);
+  expect(result).not.toBe(null);
+  return result;
+}
+async function expectOkResponse(promise) {
+  const doc = await expectPromisedResult(promise);
   expect(doc).toBeInstanceOf(DOM.Wrap);
   const status: DOM.Wrap = doc.query('StatusCode');
   expect(status).toBeInstanceOf(DOM.Wrap);
@@ -55,9 +59,9 @@ test('multiple client creation, structure, and default cfg', () => {
   expectPosterior(client.WSDL.Edit);
 
   expectPosterior(client.WSDL.Query);
-  expect(client.WSDL.Query.cfg).toBeTruthy();
-  expect(client.WSDL.Query.cfg._parent).toBeTruthy();
-  expect(client.WSDL.Query.cfg._parent).toBe(client.WSDL.cfg);
+  expect(client.WSDL.Query.metaCfg).toBeTruthy();
+  expect(client.WSDL.Query.metaCfg._parent).toBeTruthy();
+  expect(client.WSDL.Query.metaCfg._parent).toBe(client.WSDL.metaCfg);
 
   expectPosterior(client.Query);
   expect(client.Query.method).toBe('POST');
