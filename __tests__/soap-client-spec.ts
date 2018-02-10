@@ -88,8 +88,18 @@ test('edit wsdl', async () => {
   expectWSDL(result);
 });
 
+test('custom debug data caches', async () => {
+  const doc = await expectPromise(Genesis.WSDL.Query());
+  const fn = Genesis.WSDL.Query;
+  expect(fn['lastRequest']).toBeInstanceOf(Object);
+  expect(fn['lastResponse']).toBeInstanceOf(Object);
+});
+
 test('Allergens query', async () => {
   const doc = await expectOkResponse(Genesis.Query.Allergens());
+  const fn = Genesis.Query.Allergens;
+  expect(fn['lastRequest']).toBeInstanceOf(Object);
+  expect(fn['lastResponse']).toBeInstanceOf(Object);
 });
 test('Nutrients query', async () => {
   const pageSize = 5;
