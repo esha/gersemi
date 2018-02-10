@@ -44,7 +44,7 @@
   "dependencies": {
     "case": "^1.5.4",
     "moment": "^2.20.1",
-    "posterior": "^0.22.1",
+    "posterior": "^0.22.3",
     "store2": "^2.6.0"
   },
   "devDependencies": {
