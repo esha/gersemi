@@ -73,7 +73,7 @@ export class Client {
       {
         headers: { 'Content-Type': 'text/xml' },
         singleton: true,
-        then: (xml: any) => new WSDL.Definitions(xml),
+        responseData: (xml: any) => new WSDL.Definitions(xml),
         Children: {
           Query: {
             url: 'query.wsdl',
@@ -93,7 +93,7 @@ export class Client {
         headers: {
           'Content-Type': 'application/soap+xml',
         },
-        then: (res: string) => DOM.Parser.dom(res),
+        responseData: (res: string) => DOM.Parser.dom(res),
         Children: {
           Nutrients: {
             requestData: queryTranslator('listnutrients', url, 'PageSize'),
