@@ -11,22 +11,6 @@ XML.setURIs({
 });
 
 export class Client {
-  public static toDebugRequest(cfg: Posterior.RunConfig, data: any) {
-    return {
-      url: Posterior.xhr.url(cfg),
-      method: cfg.method || 'GET',
-      headers: cfg.headers,
-      body: data,
-    };
-  }
-  public static toDebugResponse(xhr: Posterior.XHR, data: any) {
-    return {
-      status: xhr.status,
-      headers: xhr.responseHeaders,
-      body: data,
-    };
-  }
-
   public Base: Posterior.Requester;
   public WSDL: Posterior.Requester & {
     [Sub: string]: Posterior.Requester;
@@ -44,30 +28,6 @@ export class Client {
     cfg.json = false;
     this.config = cfg;
     this.Base = Posterior(cfg, 'Client');
-    if (cfg.debug) {
-      this.Base = this.Base.extend(
-        {
-          requestData: function(this: Posterior.RunConfig, data: any) {
-            (this._fn as any).lastRequest = Client.toDebugRequest(this, data);
-            return data;
-          },
-          responseData: function(
-            this: Posterior.RunConfig,
-            data: any,
-            xhr: Posterior.XHR
-          ) {
-            if (this._fn) {
-              (this._fn as any).lastResponse = Client.toDebugResponse(
-                xhr,
-                data
-              );
-            }
-            return data;
-          },
-        },
-        'Base'
-      );
-    }
 
     this.WSDL = this.Base.extend(
       {

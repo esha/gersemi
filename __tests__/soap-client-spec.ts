@@ -6,7 +6,7 @@ import * as WSDL from '../src/WSDL';
 // Until server is CORS-friendly, use the proxy
 // const genesisUrl = 'http://esha-sandbox.westus.cloudapp.azure.com/';
 const genesisUrl = 'http://localhost:8008/';
-const Genesis = new Client(genesisUrl, { debug: true });
+const Genesis = new Client(genesisUrl, { debug: 'capture' });
 
 // Util functions
 function expectFunction(fn: any) {
@@ -91,15 +91,15 @@ test('edit wsdl', async () => {
 test('custom debug data caches', async () => {
   const doc = await expectPromise(Genesis.WSDL.Query());
   const fn = Genesis.WSDL.Query;
-  expect(fn['lastRequest']).toBeInstanceOf(Object);
-  expect(fn['lastResponse']).toBeInstanceOf(Object);
+  expect(fn.capture).toBeInstanceOf(Object);
+  expect(fn.capture.status).toBe(200);
+  expect(fn.capture.state).toBe('success');
+  // expect(fn['lastRequest']).toBeInstanceOf(Object);
+  // expect(fn['lastResponse']).toBeInstanceOf(Object);
 });
 
 test('Allergens query', async () => {
   const doc = await expectOkResponse(Genesis.Query.Allergens());
-  const fn = Genesis.Query.Allergens;
-  expect(fn['lastRequest']).toBeInstanceOf(Object);
-  expect(fn['lastResponse']).toBeInstanceOf(Object);
 });
 test('Nutrients query', async () => {
   const pageSize = 5;
