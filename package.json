@@ -1,7 +1,7 @@
 {
   "name": "gersemi",
   "title": "TypeScript Client for Genesis API",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "gersemi",
   "license": "MIT",
   "repository": {
@@ -44,7 +44,7 @@
   "dependencies": {
     "case": "^1.5.4",
     "moment": "^2.20.1",
-    "posterior": "^0.22.3",
+    "posterior": "^0.22.6",
     "store2": "^2.6.0"
   },
   "devDependencies": {
