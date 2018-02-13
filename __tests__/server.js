@@ -4,10 +4,19 @@ var bodyParser = require('body-parser');
 var cors = require('cors');;
 var request = require('request');
 var app = express();
-var api = process.env.API || 'http://esha-sandbox.westus.cloudapp.azure.com';
+var api = process.env.GERSEMI_API || 'http://esha-sandbox.westus.cloudapp.azure.com/';
+var port = process.env.GERSEMI_PORT || '8008';
+
+if (!api.endsWith('/')) {
+    api += '/';
+}
+
+function toURL(req) {
+    return api + req.originalUrl.replace('/(api/)?',''));
+}
 
 function log(req) {
-  const url = api + req.originalUrl;
+  const url = toURL(req);
   if (req.method === 'OPTIONS') {
       return { method: req.method, url };
   }
@@ -39,7 +48,7 @@ app.use(cors());
 //app.use(logfmt.requestLogger({immediate: true}, log));
 
 app.all('/*', function(req, res) {
-    const url = api + req.originalUrl;
+    const url = toURL(req);
     const method = req.method.toLowerCase();
 
     print(log(req))
@@ -51,6 +60,6 @@ app.all('/*', function(req, res) {
     }
 })
 
-app.listen(process.env.PORT || 8008, function() {
+app.listen(port, function() {
     console.log('Using API:', api);
 });

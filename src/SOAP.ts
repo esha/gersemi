@@ -23,9 +23,11 @@ export class Header extends Element {
     }
     this.actionElement.add(this.action);
     // service appears to tolerate any host to wsa:To element,
-    // let's go ahead and not send any localhost crap,
+    // but not any path (like a path for proxy redirect).
+    // so we should replace any localhost artifacts,
     // whether from proxy use or WSDL generation artifacts
-    to = to.replace(/localhost:[0-9]+/, 'genesis.esha.com');
+    // TODO: proper use proper url parser to ensure path starts w/ '/soap'
+    to = to.replace(/localhost:[0-9]+(\/api|\/proxy)?/, 'genesis.esha.com');
     this.add(new XML.Element('wsa:To').add(to));
   }
 }
