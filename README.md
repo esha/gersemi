@@ -23,6 +23,6 @@ Genesis.Query.ByUserCode(12).then((res) => {
 
 
 ### Release History
-* 2018-02 [v0.1.0][] (development)
+* 2018-02 [v0.1.4][] (development)
 
-[v0.1.0]: https://github.com/esha/posterior/tree/0.1.0
+[v0.1.4]: https://github.com/esha/posterior/tree/0.1.4
