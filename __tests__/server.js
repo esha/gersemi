@@ -12,7 +12,7 @@ if (!api.endsWith('/')) {
 }
 
 function toURL(req) {
-    return api + req.originalUrl.replace('/(api/)?',''));
+    return api + req.originalUrl.replace('/(api/)?','');
 }
 
 function log(req) {
