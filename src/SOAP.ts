@@ -10,6 +10,9 @@ export class Element extends XML.Element {
   }
 }
 
+const host = window.location.host || 'localhost(:[0-9]+)?';
+const rootRE = new RegExp(host + '(\\/api|\\/proxy)?');
+
 export class Header extends Element {
   public actionElement: XML.Element;
 
@@ -24,10 +27,9 @@ export class Header extends Element {
     this.actionElement.add(this.action);
     // service appears to tolerate any host to wsa:To element,
     // but not any path (like a path for proxy redirect).
-    // so we should replace any localhost artifacts,
-    // whether from proxy use or WSDL generation artifacts
-    // TODO: proper use proper url parser to ensure path starts w/ '/soap'
-    to = to.replace(/localhost:[0-9]+(\/api|\/proxy)?/, 'genesis.esha.com');
+    // so we will replace host and proxy artifacts both
+    // for sanitization and aesthetics
+    to = to.replace(rootRE, 'genesis.esha.com');
     this.add(new XML.Element('wsa:To').add(to));
   }
 }
