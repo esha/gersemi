@@ -56,22 +56,23 @@ export class Client {
         responseData: (res: string) => DOM.Parser.dom(res),
         Children: {
           Nutrients: {
-            requestData: queryTranslator('listnutrients', url, 'PageSize'),
+            requestData: adapter(Query, 'listnutrients', url, 'PageSize'),
           },
           Allergens: {
-            requestData: queryTranslator('listallergens', url, 'PageSize'),
+            requestData: adapter(Query, 'listallergens', url, 'PageSize'),
           },
           Units: {
-            requestData: queryTranslator('listunits', url, 'PageSize'),
+            requestData: adapter(Query, 'listunits', url, 'PageSize'),
           },
           Foods: {
-            requestData: queryTranslator('listfoods', url, 'PageSize'),
+            requestData: adapter(Query, 'listfoods', url, 'PageSize'),
           },
           ByGroup: {
-            requestData: queryTranslator('searchbygroup', url, 'GroupName'),
+            requestData: adapter(Query, 'searchbygroup', url, 'GroupName'),
           },
           ByModifiedDateRange: {
-            requestData: queryTranslator(
+            requestData: adapter(
+              Query,
               'searchbymodifieddaterange',
               url,
               undefined,
@@ -79,19 +80,19 @@ export class Client {
             ),
           },
           ByName: {
-            requestData: queryTranslator('searchbyname', url, 'FoodName'),
+            requestData: adapter(Query, 'searchbyname', url, 'FoodName'),
           },
           ById: {
-            requestData: queryTranslator('getfood', url, 'FoodId'),
+            requestData: adapter(Query, 'getfood', url, 'FoodId'),
           },
           ByUserCode: {
-            requestData: queryTranslator('getfood', url, 'UserCode'),
+            requestData: adapter(Query, 'getfood', url, 'UserCode'),
           },
           Analysis: {
-            requestData: queryTranslator('getanalysis', url),
+            requestData: adapter(Query, 'getanalysis', url),
           },
           UserCodes: {
-            requestData: queryTranslator('listfoodusercodes', url, 'PageSize'),
+            requestData: adapter(Query, 'listfoodusercodes', url, 'PageSize'),
           },
         },
       },
@@ -104,12 +105,13 @@ export class Client {
         headers: {
           'Content-Type': 'application/soap+xml',
         },
+        responseData: (res: string) => DOM.Parser.dom(res),
         Children: {
           NewFood: {
-            requestData: editTranslator('newfood', url),
+            requestData: adapter(Edit, 'newfood', url, undefined, ['exlx']),
           },
           UpdateFood: {
-            requestData: editTranslator('updatefood', url),
+            requestData: adapter(Edit, 'updatefood', url, undefined, ['exlx']),
           },
         },
       },
@@ -118,25 +120,18 @@ export class Client {
   }
 }
 
-export function editTranslator(
+export interface RequestConstructor {
+  new (action: string, url: string, namespaces?: string[]): Request;
+}
+export function adapter(
+  ReqCtor: RequestConstructor,
   action: string,
   url: string,
   defaultName?: string,
   namespaces?: string[]
 ) {
-  return translator(() => new Edit(action, url, namespaces), defaultName);
-}
-export function queryTranslator(
-  action: string,
-  url: string,
-  defaultName?: string,
-  namespaces?: string[]
-) {
-  return translator(() => new Query(action, url, namespaces), defaultName);
-}
-export function translator(ctor: () => Request, defaultName?: string) {
   return (data?: Params) => {
-    const request = ctor();
+    const request = new ReqCtor(action, url, namespaces);
     if (data instanceof Array) {
       if (
         data.length === 1 &&
