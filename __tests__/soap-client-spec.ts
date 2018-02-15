@@ -94,8 +94,6 @@ test('custom debug data caches', async () => {
   expect(fn.capture).toBeInstanceOf(Object);
   expect(fn.capture.status).toBe(200);
   expect(fn.capture.state).toBe('success');
-  // expect(fn['lastRequest']).toBeInstanceOf(Object);
-  // expect(fn['lastResponse']).toBeInstanceOf(Object);
 });
 
 test('Allergens query', async () => {
